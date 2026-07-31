@@ -43,23 +43,8 @@
     </header>
 
     <main class="main-content">
-      <!-- Activity Question Card -->
-      <section class="card question-card">
-        <div class="card-header">
-          <span class="badge">Activity Question</span>
-        </div>
-        <div class="question-body" id="questionBox">
-          <p><strong>Topic: Definite Integrals & Geometric Interpretation</strong></p>
-          <p>Consider the function $f(x) = 4 - x^2$ on the interval $[0, 2]$.</p>
-          <ol>
-            <li>Calculate the exact area under the curve using definite integration.</li>
-            <li>In the <strong>Drawing Board</strong> below, sketch the curve $f(x)$, shade the region bounded by the curve, the x-axis, and the lines $x=0$ and $x=2$.</li>
-            <li>Explain how Riemann sums approximate this area and how taking the limit leads to the exact value.</li>
-          </ol>
-        </div>
-      </section>
 
-      <!-- Student Response Area -->
+      <!-- Student Response Area (Now with Table Tool) -->
       <section class="card response-card">
         <div class="card-header-flex">
           <h2>Your Answer</h2>
@@ -68,12 +53,33 @@
             <span class="stat-badge"><strong id="charCount">0</strong> Characters</span>
           </div>
         </div>
-        <div class="textarea-wrapper">
-          <textarea 
+
+        <!-- Table Formatting Toolbar -->
+        <div class="text-toolbar">
+          <div class="table-controls">
+            <span class="tool-label">Table Creator:</span>
+            <input type="number" id="tableRows" min="1" max="10" value="3" placeholder="Rows" title="Rows" />
+            <span>×</span>
+            <input type="number" id="tableCols" min="1" max="10" value="3" placeholder="Cols" title="Columns" />
+            <button id="btnInsertTable" class="tool-btn">📊 Insert Table</button>
+          </div>
+          <div class="table-actions" id="tableActions" style="display: none;">
+            <button id="btnAddRow" class="tool-btn">+ Row</button>
+            <button id="btnAddCol" class="tool-btn">+ Col</button>
+            <button id="btnRemoveRow" class="tool-btn danger">- Row</button>
+            <button id="btnRemoveCol" class="tool-btn danger">- Col</button>
+          </div>
+        </div>
+
+        <!-- Rich Text Editor Container -->
+        <div class="editor-wrapper">
+          <div 
             id="studentAnswer" 
-            placeholder="Type your answer here..." 
+            contenteditable="true" 
+            class="rich-editor" 
+            data-placeholder="Type your answer here..."
             spellcheck="true"
-          ></textarea>
+          ></div>
         </div>
       </section>
 

@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const darkModeBtn = document.getElementById('darkModeBtn');
   const fullscreenBtn = document.getElementById('fullscreenBtn');
   const spellcheckBtn = document.getElementById('spellcheckBtn');
-  const timerDisplay = document.getElementById('timerDisplay');
 
   // State Variables
   let canvas;
@@ -51,11 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentMode = 'pen';
   let currentColor = '#2563eb';
   let currentBrushWidth = 3;
-  let secondsElapsed = 0;
   let activeTableCell = null;
 
   // Initialize Application
-  initTimer();
   initFabricCanvas();
   initTextCounters();
   initTableTools();
@@ -69,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function initFabricCanvas() {
     const wrapper = document.getElementById('canvasWrapper');
     const width = wrapper.clientWidth || 800;
-    const height = 400; // Explicitly set to 400px to match editor
+    const height = 400;
 
     canvas = new fabric.Canvas('drawingBoard', {
       isDrawingMode: true,
@@ -112,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
    * Text Counter & Empty Placeholder Fix
    */
   function updateCounters() {
-    // If user cleared all content, ensure div is physically empty for :empty placeholder
     if (answerInput.innerHTML === '<br>' || answerInput.innerHTML.trim() === '') {
       answerInput.innerHTML = '';
     }
@@ -393,7 +389,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const content = `INTEGRATION ACTIVITY RESPONSE
 ========================================
 Date: ${new Date().toLocaleString()}
-Elapsed Time: ${timerDisplay.textContent}
 
 ----------------------------------------
 WRITTEN RESPONSE:
@@ -409,14 +404,5 @@ ${answerInput.innerText || '(No written response provided)'}
     link.click();
 
     downloadDrawingPNG();
-  }
-
-  function initTimer() {
-    setInterval(() => {
-      secondsElapsed++;
-      const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
-      const secs = String(secondsElapsed % 60).padStart(2, '0');
-      timerDisplay.textContent = `${mins}:${secs}`;
-    }, 1000);
   }
 });

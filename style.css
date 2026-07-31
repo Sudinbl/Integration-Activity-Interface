@@ -143,10 +143,6 @@ body {
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-.card-header {
-  margin-bottom: 12px;
-}
-
 .card-header-flex {
   display: flex;
   justify-content: space-between;
@@ -161,42 +157,11 @@ body {
   font-weight: 600;
 }
 
-.badge {
-  background-color: var(--primary-light);
-  color: var(--primary);
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
 .hint {
   font-size: 0.85rem;
   color: var(--text-muted);
 }
 
-/* Question Section */
-.question-card {
-  background-color: var(--card-bg);
-  border-left: 4px solid var(--primary);
-}
-
-.question-body {
-  background-color: var(--input-bg);
-  padding: 16px 20px;
-  border-radius: 10px;
-  font-size: 1rem;
-  line-height: 1.7;
-}
-
-.question-body ol {
-  margin-left: 20px;
-  margin-top: 8px;
-}
-
-/* Text Response Area */
 .stat-badge {
   font-size: 0.8rem;
   background-color: var(--input-bg);
@@ -206,24 +171,86 @@ body {
   color: var(--text-muted);
 }
 
-.textarea-wrapper textarea {
-  width: 100%;
-  min-height: 160px;
+/* Text Editor & Table Formatting Toolbar */
+.text-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  flex-wrap: wrap;
+}
+
+.table-controls, .table-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-controls input[type="number"] {
+  width: 48px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-main);
+  text-align: center;
+}
+
+.rich-editor {
+  min-height: 180px;
   padding: 16px;
   font-family: var(--font-family);
   font-size: 1rem;
   color: var(--text-main);
-  background-color: var(--input-bg);
+  background-color: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
-  resize: vertical;
+  border-top: none;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  overflow-y: auto;
 }
 
-.textarea-wrapper textarea:focus {
+.rich-editor:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.rich-editor[data-placeholder]:empty:before {
+  content: attr(data-placeholder);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Dynamic Tables Inside Editor */
+.rich-editor table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+}
+
+.rich-editor table, .rich-editor th, .rich-editor td {
+  border: 1px solid var(--border-color);
+}
+
+.rich-editor th, .rich-editor td {
+  padding: 8px 12px;
+  min-width: 50px;
+  text-align: left;
+}
+
+.rich-editor th {
+  background-color: var(--primary-light);
+  font-weight: 600;
+}
+
+.rich-editor td.selected-cell, .rich-editor th.selected-cell {
+  outline: 2px solid var(--primary);
 }
 
 /* Drawing Board Toolbar */
@@ -255,9 +282,9 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   color: var(--text-main);
-  padding: 8px 14px;
+  padding: 6px 12px;
   border-radius: 8px;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -335,7 +362,7 @@ input[type="range"] {
   border: 1px solid var(--border-color);
   border-radius: 10px;
   overflow: hidden;
-  background-color: #ffffff; /* White drawing canvas */
+  background-color: #ffffff;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
@@ -410,12 +437,12 @@ canvas {
     font-size: 1.5rem;
   }
   
-  .toolbar {
+  .toolbar, .text-toolbar {
     flex-direction: column;
     align-items: stretch;
   }
   
-  .tool-group {
+  .tool-group, .table-controls, .table-actions {
     justify-content: space-between;
   }
   

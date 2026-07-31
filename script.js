@@ -10,7 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusText = document.getElementById('statusText');
   const statusDot = document.querySelector('.status-dot');
   
-  // Toolbar Controls
+  // Table Controls
+  const btnInsertTable = document.getElementById('btnInsertTable');
+  const tableRowsInput = document.getElementById('tableRows');
+  const tableColsInput = document.getElementById('tableCols');
+  const tableActions = document.getElementById('tableActions');
+  const btnAddRow = document.getElementById('btnAddRow');
+  const btnAddCol = document.getElementById('btnAddCol');
+  const btnRemoveRow = document.getElementById('btnRemoveRow');
+  const btnRemoveCol = document.getElementById('btnRemoveCol');
+
+  // Toolbar Canvas Controls
   const toolPen = document.getElementById('toolPen');
   const toolEraser = document.getElementById('toolEraser');
   const colorPicker = document.getElementById('colorPicker');
@@ -42,17 +52,19 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentColor = '#2563eb';
   let currentBrushWidth = 3;
   let secondsElapsed = 0;
+  let activeTableCell = null;
 
   // Initialize Application
   initTimer();
   initFabricCanvas();
   initTextCounters();
+  initTableTools();
   loadSavedSession();
   setupAutoSave();
   setupEventListeners();
 
   /**
-   * Initialize Fabric.js HTML5 Canvas
+   * Initialize Fabric.js Canvas
    */
   function initFabricCanvas() {
     const wrapper = document.getElementById('canvasWrapper');
@@ -66,25 +78,18 @@ document.addEventListener('DOMContentLoaded', () => {
       backgroundColor: '#ffffff'
     });
 
-    // Configure Brush
     canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
     canvas.freeDrawingBrush.color = currentColor;
     canvas.freeDrawingBrush.width = parseInt(currentBrushWidth, 10);
 
-    // Save history state on path creation
     canvas.on('path:created', saveCanvasState);
-
-    // Initial empty state
     saveCanvasState();
   }
 
-  /**
-   * Undo & Redo Canvas Handlers
-   */
   function saveCanvasState() {
     if (undoStack.length > 25) undoStack.shift();
     undoStack.push(JSON.stringify(canvas));
-    redoStack = []; // Reset redo on new draw
+    redoStack = [];
   }
 
   function handleUndo() {
@@ -104,23 +109,103 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * Text Input Counter & Auto-Expand
+   * Text Counter
    */
   function updateCounters() {
-    const text = answerInput.value;
-    const charCount = text.length;
+    const text = answerInput.innerText || '';
+    const charCount = text.trim().length;
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
 
     wordCountDisplay.textContent = words;
     charCountDisplay.textContent = charCount;
-
-    // Auto-expand textarea
-    answerInput.style.height = 'auto';
-    answerInput.style.height = answerInput.scrollHeight + 'px';
   }
 
   function initTextCounters() {
     answerInput.addEventListener('input', updateCounters);
+  }
+
+  /**
+   * Dynamic Table Management
+   */
+  function initTableTools() {
+    btnInsertTable.addEventListener('click', () => {
+      const rows = parseInt(tableRowsInput.value, 10) || 3;
+      const cols = parseInt(tableColsInput.value, 10) || 3;
+
+      let tableHTML = '<table><tbody>';
+      for (let r = 0; r < rows; r++) {
+        tableHTML += '<tr>';
+        for (let c = 0; c < cols; c++) {
+          if (r === 0) {
+            tableHTML += `<th contenteditable="true">Header ${c + 1}</th>`;
+          } else {
+            tableHTML += `<td contenteditable="true">Data</td>`;
+          }
+        }
+        tableHTML += '</tr>';
+      }
+      tableHTML += '</tbody></table><p><br></p>';
+
+      answerInput.focus();
+      document.execCommand('insertHTML', false, tableHTML);
+      updateCounters();
+    });
+
+    // Detect cell focus inside table to show modification controls
+    answerInput.addEventListener('click', (e) => {
+      const cell = e.target.closest('td, th');
+      if (cell) {
+        if (activeTableCell) activeTableCell.classList.remove('selected-cell');
+        activeTableCell = cell;
+        activeTableCell.classList.add('selected-cell');
+        tableActions.style.display = 'flex';
+      } else {
+        if (activeTableCell) activeTableCell.classList.remove('selected-cell');
+        activeTableCell = null;
+        tableActions.style.display = 'none';
+      }
+    });
+
+    btnAddRow.addEventListener('click', () => {
+      if (!activeTableCell) return;
+      const row = activeTableCell.closest('tr');
+      const newRow = row.cloneNode(true);
+      Array.from(newRow.cells).forEach(c => c.textContent = 'Data');
+      row.parentNode.insertBefore(newRow, row.nextSibling);
+    });
+
+    btnAddCol.addEventListener('click', () => {
+      if (!activeTableCell) return;
+      const colIndex = activeTableCell.cellIndex;
+      const table = activeTableCell.closest('table');
+      Array.from(table.rows).forEach((row) => {
+        const cell = row.cells[colIndex];
+        const newCell = document.createElement(row.rowIndex === 0 ? 'th' : 'td');
+        newCell.textContent = row.rowIndex === 0 ? 'Header' : 'Data';
+        newCell.contentEditable = 'true';
+        cell.parentNode.insertBefore(newCell, cell.nextSibling);
+      });
+    });
+
+    btnRemoveRow.addEventListener('click', () => {
+      if (!activeTableCell) return;
+      const row = activeTableCell.closest('tr');
+      const table = activeTableCell.closest('table');
+      if (table.rows.length > 1) {
+        row.remove();
+        tableActions.style.display = 'none';
+      }
+    });
+
+    btnRemoveCol.addEventListener('click', () => {
+      if (!activeTableCell) return;
+      const colIndex = activeTableCell.cellIndex;
+      const table = activeTableCell.closest('table');
+      if (table.rows[0].cells.length > 1) {
+        Array.from(table.rows).forEach(row => row.cells[colIndex].remove());
+        tableActions.style.display = 'none';
+      }
+    });
   }
 
   /**
@@ -131,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     statusText.textContent = 'Saving...';
 
     const sessionData = {
-      textResponse: answerInput.value,
+      textResponseHTML: answerInput.innerHTML,
       canvasJSON: JSON.stringify(canvas),
       timestamp: new Date().toISOString()
     };
@@ -150,8 +235,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const data = JSON.parse(saved);
-      if (data.textResponse) {
-        answerInput.value = data.textResponse;
+      if (data.textResponseHTML) {
+        answerInput.innerHTML = data.textResponseHTML;
         updateCounters();
       }
       if (data.canvasJSON) {
@@ -166,14 +251,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function setupAutoSave() {
-    setInterval(saveToLocalStorage, 10000); // Save every 10 seconds
+    setInterval(saveToLocalStorage, 10000);
   }
 
   /**
    * Event Listeners Setup
    */
   function setupEventListeners() {
-    // Tool switching
     toolPen.addEventListener('click', () => {
       currentMode = 'pen';
       toolPen.classList.add('active');
@@ -186,16 +270,13 @@ document.addEventListener('DOMContentLoaded', () => {
       currentMode = 'eraser';
       toolEraser.classList.add('active');
       toolPen.classList.remove('active');
-      canvas.freeDrawingBrush.color = '#ffffff'; // White for background eraser
+      canvas.freeDrawingBrush.color = '#ffffff';
       canvas.freeDrawingBrush.width = parseInt(brushSize.value, 10) * 3;
     });
 
-    // Color controls
     colorPicker.addEventListener('input', (e) => {
       currentColor = e.target.value;
-      if (currentMode === 'pen') {
-        canvas.freeDrawingBrush.color = currentColor;
-      }
+      if (currentMode === 'pen') canvas.freeDrawingBrush.color = currentColor;
     });
 
     colorSwatches.forEach(swatch => {
@@ -204,13 +285,10 @@ document.addEventListener('DOMContentLoaded', () => {
         swatch.classList.add('active');
         currentColor = swatch.dataset.color;
         colorPicker.value = currentColor;
-        if (currentMode === 'pen') {
-          canvas.freeDrawingBrush.color = currentColor;
-        }
+        if (currentMode === 'pen') canvas.freeDrawingBrush.color = currentColor;
       });
     });
 
-    // Brush Size
     brushSize.addEventListener('input', (e) => {
       const val = e.target.value;
       brushSizeVal.textContent = val;
@@ -218,38 +296,34 @@ document.addEventListener('DOMContentLoaded', () => {
       canvas.freeDrawingBrush.width = parseInt(val, 10) * multiplier;
     });
 
-    // Canvas actions
     undoBtn.addEventListener('click', handleUndo);
     redoBtn.addEventListener('click', handleRedo);
+
     clearCanvasBtn.addEventListener('click', () => {
-      if (confirm('Are you sure you want to clear the drawing board?')) {
+      if (confirm('Clear the drawing board?')) {
         canvas.clear();
         canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
         saveCanvasState();
       }
     });
 
-    // Bottom Action Buttons
     btnClearText.addEventListener('click', () => {
       if (confirm('Clear your written response?')) {
-        answerInput.value = '';
+        answerInput.innerHTML = '';
         updateCounters();
         saveToLocalStorage();
       }
     });
 
-    btnClearDrawing.addEventListener('click', () => {
-      clearCanvasBtn.click();
-    });
-
+    btnClearDrawing.addEventListener('click', () => clearCanvasBtn.click());
     btnDownloadDrawing.addEventListener('click', downloadDrawingPNG);
     btnDownloadAll.addEventListener('click', downloadCompleteResponse);
 
     btnSubmit.addEventListener('click', () => {
       saveToLocalStorage();
       const payload = {
-        question: document.getElementById('questionBox').innerText,
-        studentResponse: answerInput.value,
+        studentResponseHTML: answerInput.innerHTML,
+        studentResponseText: answerInput.innerText,
         drawingDataURL: canvas.toDataURL({ format: 'png' }),
         submittedAt: new Date().toISOString()
       };
@@ -259,7 +333,6 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Activity submitted successfully! Data logged to browser console.');
     });
 
-    // Utilities
     darkModeBtn.addEventListener('click', () => {
       const isDark = document.body.getAttribute('data-theme') === 'dark';
       document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
@@ -279,7 +352,6 @@ document.addEventListener('DOMContentLoaded', () => {
       spellcheckBtn.style.opacity = current ? '0.6' : '1';
     });
 
-    // Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 'z' || e.key === 'Z') {
@@ -295,7 +367,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Responsive Canvas Resizing
     window.addEventListener('resize', () => {
       const wrapper = document.getElementById('canvasWrapper');
       if (wrapper && canvas) {
@@ -305,9 +376,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /**
-   * Downloads
-   */
   function downloadDrawingPNG() {
     const dataURL = canvas.toDataURL({ format: 'png', quality: 1.0 });
     const link = document.createElement('a');
@@ -325,7 +393,7 @@ Elapsed Time: ${timerDisplay.textContent}
 ----------------------------------------
 WRITTEN RESPONSE:
 ----------------------------------------
-${answerInput.value || '(No written response provided)'}
+${answerInput.innerText || '(No written response provided)'}
 
 ========================================
 `;
@@ -335,13 +403,9 @@ ${answerInput.value || '(No written response provided)'}
     link.href = URL.createObjectURL(blob);
     link.click();
 
-    // Also prompt download of drawing
     downloadDrawingPNG();
   }
 
-  /**
-   * Timer Utility
-   */
   function initTimer() {
     setInterval(() => {
       secondsElapsed++;

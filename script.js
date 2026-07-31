@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function initFabricCanvas() {
     const wrapper = document.getElementById('canvasWrapper');
     const width = wrapper.clientWidth || 800;
-    const height = 400;
+    const height = 400; // Explicitly set to 400px to match editor
 
     canvas = new fabric.Canvas('drawingBoard', {
       isDrawingMode: true,
@@ -109,9 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * Text Counter
+   * Text Counter & Empty Placeholder Fix
    */
   function updateCounters() {
+    // If user cleared all content, ensure div is physically empty for :empty placeholder
+    if (answerInput.innerHTML === '<br>' || answerInput.innerHTML.trim() === '') {
+      answerInput.innerHTML = '';
+    }
+
     const text = answerInput.innerText || '';
     const charCount = text.trim().length;
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -151,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
       updateCounters();
     });
 
-    // Detect cell focus inside table to show modification controls
     answerInput.addEventListener('click', (e) => {
       const cell = e.target.closest('td, th');
       if (cell) {
@@ -371,6 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const wrapper = document.getElementById('canvasWrapper');
       if (wrapper && canvas) {
         canvas.setWidth(wrapper.clientWidth);
+        canvas.setHeight(wrapper.clientHeight || 400);
         canvas.renderAll();
       }
     });

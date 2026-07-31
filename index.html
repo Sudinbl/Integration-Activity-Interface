@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integration Activity Board</title>
+  
+  <!-- Typography & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+  
+  <!-- Fabric.js Library for HTML5 Canvas Drawing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Top Utility Bar -->
+    <div class="utility-bar">
+      <div class="timer-badge" id="timerBadge">
+        ⏱️ Elapsed Time: <span id="timerDisplay">00:00</span>
+      </div>
+      <div class="status-indicator" id="statusIndicator">
+        <span class="status-dot"></span> <span id="statusText">Saved locally</span>
+      </div>
+      <div class="utility-controls">
+        <button id="spellcheckBtn" class="btn-icon" title="Toggle Spell Check">✍️ Spellcheck</button>
+        <button id="darkModeBtn" class="btn-icon" title="Toggle Dark Mode">🌙 Theme</button>
+        <button id="fullscreenBtn" class="btn-icon" title="Toggle Fullscreen">⛶ Fullscreen</button>
+      </div>
+    </div>
+
+    <!-- Application Header -->
+    <header class="main-header">
+      <div class="header-content">
+        <h1>Integration Activity Board</h1>
+        <p class="subtitle">Write your responses and draw illustrations in the spaces provided below.</p>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- Activity Question Card -->
+      <section class="card question-card">
+        <div class="card-header">
+          <span class="badge">Activity Question</span>
+        </div>
+        <div class="question-body" id="questionBox">
+          <p><strong>Topic: Definite Integrals & Geometric Interpretation</strong></p>
+          <p>Consider the function $f(x) = 4 - x^2$ on the interval $[0, 2]$.</p>
+          <ol>
+            <li>Calculate the exact area under the curve using definite integration.</li>
+            <li>In the <strong>Drawing Board</strong> below, sketch the curve $f(x)$, shade the region bounded by the curve, the x-axis, and the lines $x=0$ and $x=2$.</li>
+            <li>Explain how Riemann sums approximate this area and how taking the limit leads to the exact value.</li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- Student Response Area -->
+      <section class="card response-card">
+        <div class="card-header-flex">
+          <h2>Your Answer</h2>
+          <div class="counter-group">
+            <span class="stat-badge"><strong id="wordCount">0</strong> Words</span>
+            <span class="stat-badge"><strong id="charCount">0</strong> Characters</span>
+          </div>
+        </div>
+        <div class="textarea-wrapper">
+          <textarea 
+            id="studentAnswer" 
+            placeholder="Type your answer here..." 
+            spellcheck="true"
+          ></textarea>
+        </div>
+      </section>
+
+      <!-- Drawing Board Section -->
+      <section class="card drawing-card">
+        <div class="card-header-flex">
+          <h2>Drawing Board</h2>
+          <span class="hint">Use pen, colors, or eraser to sketch diagrams and flowcharts</span>
+        </div>
+
+        <!-- Canvas Toolbar -->
+        <div class="toolbar" id="drawingToolbar">
+          <div class="tool-group">
+            <button id="toolPen" class="tool-btn active" title="Pen Tool">✏️ Pen</button>
+            <button id="toolEraser" class="tool-btn" title="Eraser Tool">🩹 Eraser</button>
+          </div>
+
+          <div class="tool-group">
+            <label for="colorPicker" class="tool-label">Color:</label>
+            <input type="color" id="colorPicker" value="#2563eb" title="Choose Color" />
+            
+            <div class="color-presets">
+              <button class="color-swatch active" style="background:#2563eb;" data-color="#2563eb"></button>
+              <button class="color-swatch" style="background:#ef4444;" data-color="#ef4444"></button>
+              <button class="color-swatch" style="background:#10b981;" data-color="#10b981"></button>
+              <button class="color-swatch" style="background:#1e293b;" data-color="#1e293b"></button>
+            </div>
+          </div>
+
+          <div class="tool-group">
+            <label for="brushSize" class="tool-label">Size: <span id="brushSizeVal">3</span>px</label>
+            <input type="range" id="brushSize" min="1" max="30" value="3" />
+          </div>
+
+          <div class="tool-group action-tools">
+            <button id="undoBtn" class="tool-btn" title="Undo (Ctrl+Z)">↶ Undo</button>
+            <button id="redoBtn" class="tool-btn" title="Redo (Ctrl+Y)">↷ Redo</button>
+            <button id="clearCanvasBtn" class="tool-btn danger" title="Clear Canvas">🗑️ Clear</button>
+          </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="canvas-wrapper" id="canvasWrapper">
+          <canvas id="drawingBoard"></canvas>
+        </div>
+      </section>
+
+      <!-- Bottom Action Buttons -->
+      <section class="actions-section">
+        <button id="btnClearText" class="btn btn-secondary">Clear Text</button>
+        <button id="btnClearDrawing" class="btn btn-secondary">Clear Drawing</button>
+        <button id="btnDownloadDrawing" class="btn btn-outline">Download Drawing (PNG)</button>
+        <button id="btnDownloadAll" class="btn btn-outline" title="Save All (Ctrl+S)">Download Complete Response</button>
+        <button id="btnSubmit" class="btn btn-primary">Submit Activity</button>
+      </section>
+    </main>
+
+    <footer class="main-footer">
+      <p>Integration Activity Board • Built for Interactive Digital Worksheets</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

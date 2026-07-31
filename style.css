@@ -201,8 +201,9 @@ body {
   text-align: center;
 }
 
+/* Rich Editor - Equalized height with canvas */
 .rich-editor {
-  min-height: 180px;
+  height: 400px; /* Matched exactly to drawing canvas height */
   padding: 16px;
   font-family: var(--font-family);
   font-size: 1rem;
@@ -214,6 +215,7 @@ body {
   border-bottom-right-radius: 10px;
   outline: none;
   overflow-y: auto;
+  position: relative;
 }
 
 .rich-editor:focus {
@@ -221,10 +223,21 @@ body {
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
 }
 
+/* Opacity Placeholder Effect */
 .rich-editor[data-placeholder]:empty:before {
   content: attr(data-placeholder);
   color: var(--text-muted);
+  opacity: 0.5;
   pointer-events: none;
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  font-style: italic;
+  transition: opacity 0.2s ease;
+}
+
+.rich-editor:focus[data-placeholder]:empty:before {
+  opacity: 0.3;
 }
 
 /* Dynamic Tables Inside Editor */
@@ -359,6 +372,7 @@ input[type="range"] {
 /* Canvas Area */
 .canvas-wrapper {
   width: 100%;
+  height: 400px; /* Equalized height */
   border: 1px solid var(--border-color);
   border-radius: 10px;
   overflow: hidden;
@@ -435,6 +449,10 @@ canvas {
   
   .main-header h1 {
     font-size: 1.5rem;
+  }
+
+  .rich-editor, .canvas-wrapper {
+    height: 300px; /* Equal scaled-down height for mobile */
   }
   
   .toolbar, .text-toolbar {
